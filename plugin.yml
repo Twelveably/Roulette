@@ -1,0 +1,17 @@
+main: io.github.bagas123.roulette.Main
+name: Roulette
+version: 1.0
+author: BagasMC
+depend: [Vault]
+description: Gamble plugin!
+commands:
+  roulette:
+    description: Roulette!
+    usage: /roulette
+    permission: roulette.roulette
+    permission-message: You don't have the roulette.roulette permission.
+  rconfigreload:
+    description: Reload the config file.
+    usage: /rconfigreload
+    permission: roulette.rconfigreload
+    permission-message: You don't have the roulette.rconfigreloadpermission.

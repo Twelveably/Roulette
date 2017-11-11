@@ -1,0 +1,28 @@
+#Minimum players needed to start roulette
+min-players: 3
+
+#Minimum bet needed to join the roulette
+min-bet: 1000
+
+#Minimum bet message
+min-bet-message: '&4Minimum bet is 1000.'
+
+#Lost message
+lost-message: '&4&lYou lost the roulette!'
+
+
+#Add bet balance sound
+addbet-sound: 'BLOCK_WOOD_BUTTON_CLICK_ON'
+
+#Reset bet balance sound
+resetbet-sound: 'BLOCK_REDSTONE_TORCH_BURNOUT'
+
+#Add bet sound
+addbetpush-sound: 'BLOCK_NOTE_BASS'
+
+
+#Win sound
+win-sound: 'ENTITY_PLAYER_LEVELUP'
+
+#Lose sound
+lose-sound: 'BLOCK_ANVIL_LAND'
