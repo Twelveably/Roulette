@@ -8,14 +8,3 @@ Minimum players required to start the roulette spin is configurable at the confi
 Minimum bet allowed & message is configurable at the config file.
 
 (You will need Vault for the dependency of this plugin)
-
-
-
-[​IMG]
-
-
-[​IMG]
-
-This plugin will stay free. But if you don't mind, would you like to buy me a cup of coffee? Thank you!
-
-[​IMG]​
