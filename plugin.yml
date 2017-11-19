@@ -10,8 +10,3 @@ commands:
     usage: /roulette
     permission: roulette.roulette
     permission-message: You don't have the roulette.roulette permission.
-  rconfigreload:
-    description: Reload the config file.
-    usage: /rconfigreload
-    permission: roulette.rconfigreload
-    permission-message: You don't have the roulette.rconfigreloadpermission.

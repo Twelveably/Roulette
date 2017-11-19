@@ -8,74 +8,77 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 
 public class EnchantGlow extends EnchantmentWrapper {
-	private static Enchantment glow;
+    private static Enchantment glow;
 
-	public EnchantGlow(int id) {
-		super(id);
+    public EnchantGlow(int id) {
+	super(id);
+    }
+
+    @Override
+    public boolean canEnchantItem(ItemStack item) {
+	return false;
+    }
+
+    @Override
+    public boolean conflictsWith(Enchantment other) {
+	return false;
+    }
+
+    @Override
+    public EnchantmentTarget getItemTarget() {
+	return null;
+    }
+
+    @Override
+    public int getMaxLevel() {
+	return 10;
+    }
+
+    @Override
+    public String getName() {
+	return "Glow";
+    }
+
+    @Override
+    public int getStartLevel() {
+	return 1;
+    }
+
+    public static Enchantment getGlow() {
+	if (glow != null)
+	    return glow;
+
+	if (Enchantment.getByName("Glow") != null)
+	    return Enchantment.getByName("Glow");
+
+	try {
+	    Field f = Enchantment.class.getDeclaredField("acceptingNew");
+	    f.setAccessible(true);
+	    f.set(null, true);
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
 
-	@Override
-	public boolean canEnchantItem(ItemStack item) {
-		return false;
-	}
+	glow = new EnchantGlow(255);
+	Enchantment.registerEnchantment(glow);
+	return glow;
+    }
 
-	@Override
-	public boolean conflictsWith(Enchantment other) {
-		return false;
-	}
+    public static ItemStack addGlow(ItemStack item) {
+	Enchantment glow = getGlow();
 
-	@Override
-	public EnchantmentTarget getItemTarget() {
-		return null;
-	}
+	if (!item.containsEnchantment(glow))
+	    item.addUnsafeEnchantment(glow, 1);
 
-	@Override
-	public int getMaxLevel() {
-		return 10;
-	}
+	return item;
+    }
 
-	@Override
-	public String getName() {
-		return "Glow";
-	}
+    public static ItemStack removeGlow(ItemStack item) {
+	Enchantment glow = getGlow();
 
-	@Override
-	public int getStartLevel() {
-		return 1;
-	}
+	if (item.containsEnchantment(glow))
+	    item.removeEnchantment(glow);
 
-	public static Enchantment getGlow() {
-		if (glow != null) return glow;
-
-		if (Enchantment.getByName("Glow") != null) return Enchantment.getByName("Glow");
-
-		try {
-			Field f = Enchantment.class.getDeclaredField("acceptingNew");
-			f.setAccessible(true);
-			f.set(null, true);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-
-		glow = new EnchantGlow(255);
-		Enchantment.registerEnchantment(glow);
-		return glow;
-	}
-
-	public static ItemStack addGlow(ItemStack item) {
-		Enchantment glow = getGlow();
-
-		if (!item.containsEnchantment(glow)) item.addUnsafeEnchantment(glow, 1);
-
-		return item;
-	}
-
-	public static ItemStack removeGlow(ItemStack item) {
-		Enchantment glow = getGlow();
-
-		if (item.containsEnchantment(glow)) item.removeEnchantment(glow);
-
-		return item;
-	}
+	return item;
+    }
 }

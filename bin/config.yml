@@ -1,11 +1,8 @@
+#Casino token price.
+token-price: 10000
+
 #Minimum players needed to start roulette
 min-players: 3
-
-#Minimum bet needed to join the roulette
-min-bet: 1000
-
-#Minimum bet message
-min-bet-message: '&4Minimum bet is 1000.'
 
 #Lost message
 lost-message: '&4&lYou lost the roulette!'
