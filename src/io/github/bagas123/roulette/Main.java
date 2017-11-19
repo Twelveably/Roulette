@@ -582,59 +582,6 @@ public class Main extends JavaPlugin {
 	return item;
     }
 
-    ItemStack white = createItem(new ItemStack(Material.STAINED_GLASS_PANE), ChatColor.BOLD + "", new String[] {});
-
-    ItemStack black26 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
-	    ChatColor.translateAlternateColorCodes('&', "&8&l26"), new String[] {});
-
-    ItemStack red3 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-	    ChatColor.translateAlternateColorCodes('&', "&c&l3"), new String[] {});
-
-    ItemStack black35 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
-	    ChatColor.translateAlternateColorCodes('&', "&8&l35"), new String[] {});
-
-    ItemStack red12 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-	    ChatColor.translateAlternateColorCodes('&', "&c&l12"), new String[] {});
-
-    ItemStack green = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
-	    ChatColor.translateAlternateColorCodes('&', "&a&l0"), new String[] {});
-
-    ItemStack red32 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-	    ChatColor.translateAlternateColorCodes('&', "&c&l32"), new String[] {});
-
-    ItemStack black15 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
-	    ChatColor.translateAlternateColorCodes('&', "&8&l15"), new String[] {});
-
-    ItemStack red19 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-	    ChatColor.translateAlternateColorCodes('&', "&c&l19"), new String[] {});
-
-    ItemStack redclear = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-	    ChatColor.translateAlternateColorCodes('&', "&c&lReset bet"), new String[] {});
-
-    ItemStack goback = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-	    ChatColor.translateAlternateColorCodes('&', "&c&lGo back"), new String[] {});
-
-    ItemStack black4 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
-	    ChatColor.translateAlternateColorCodes('&', "&8&l4"), new String[] {});
-
-    static ItemStack orange1 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛂ &a&l1"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛂ &a&l1 to your bet."), });
-
-    static ItemStack orange10 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l5"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛃ &a&l5 to your bet."), });
-
-    static ItemStack orange50 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l10"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛃ &a&l10 to your bet."), });
-
-    static ItemStack orange100 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l20"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛃ &a&l20 to your bet."),
-
-	    });
-
     ItemStack hopper = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"), new String[] { "",
 		    ChatColor.translateAlternateColorCodes('&', "&c&lNot enough players to start roulette!") });
