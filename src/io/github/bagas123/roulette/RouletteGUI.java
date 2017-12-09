@@ -19,14 +19,15 @@ import net.md_5.bungee.api.ChatColor;
 public class RouletteGUI implements Listener {
 
     public static Inventory rouletteGUI = Bukkit.createInventory(null, 45, ChatColor.BOLD + "Roulette");
+
+    RouletteAPI RouletteAPI = new RouletteAPI();
+
     String winsound = Main.instance.getConfig().getString("win-sound");
     String losesound = Main.instance.getConfig().getString("lose-sound");
     String addbetsound = Main.instance.getConfig().getString("addbetpush-sound");
-    String addbetbalsound = Main.instance.getConfig().getString("addbet-sound");
+    String addbetbalspund = Main.instance.getConfig().getString("addbet-sound");
     String resetbetsound = Main.instance.getConfig().getString("resetbet-sound");
     String lostmessage = Main.instance.getConfig().getString("lost-message");
-
-    RouletteAPI RouletteAPI = new RouletteAPI();
 
     public static ItemStack[] items = new ItemStack[9];
     {
@@ -128,87 +129,160 @@ public class RouletteGUI implements Listener {
 		    .equals(ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"))) {
 		if (!Main.onspin) {
 		    if (Main.betplayer.get(p.getUniqueId()) > 0) {
-			if (event.isLeftClick()) {
-			    p.openInventory(RouletteGUI.rouletteGUI);
-			    RouletteAPI.removeTokenBal(p.getName(), Main.betplayer.get(p.getUniqueId()));
-			    Main.rollers.put(p.getUniqueId(), "15");
-			    p.playSound(p.getLocation(), Sound.valueOf(addbetsound), 1, 1);
-			} else if (event.isRightClick()) {
-			    p.openInventory(RouletteGUI.rouletteGUI);
-			    RouletteAPI.removeTokenBal(p.getName(), Main.betplayer.get(p.getUniqueId()));
-			    Main.rollers.put(p.getUniqueId(), "14");
-			    p.playSound(p.getLocation(), Sound.valueOf(addbetsound), 1, 1);
-			} else if (event.getClick().isCreativeAction()) {
-			    p.openInventory(RouletteGUI.rouletteGUI);
-			    RouletteAPI.removeTokenBal(p.getName(), Main.betplayer.get(p.getUniqueId()));
-			    Main.rollers.put(p.getUniqueId(), "5");
-			    p.playSound(p.getLocation(), Sound.valueOf(addbetsound), 1, 1);
-			}
+			/*
+			 * if (event.isLeftClick()) {
+			 * p.openInventory(RouletteGUI.rouletteGUI);
+			 * RouletteAPI.removeTokenBal(p.getName(),
+			 * Main.betplayer.get(p.getUniqueId()));
+			 * Main.rollers.put(p.getUniqueId(), "15");
+			 * p.playSound(p.getLocation(),
+			 * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+			 * addbetsound : "NOTE_BASS"), 1, 1); } else if
+			 * (event.isRightClick()) {
+			 * p.openInventory(RouletteGUI.rouletteGUI);
+			 * RouletteAPI.removeTokenBal(p.getName(),
+			 * Main.betplayer.get(p.getUniqueId()));
+			 * Main.rollers.put(p.getUniqueId(), "14");
+			 * p.playSound(p.getLocation(),
+			 * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+			 * addbetsound : "NOTE_BASS"), 1, 1); } else if
+			 * (event.getClick().isCreativeAction()) {
+			 * p.openInventory(RouletteGUI.rouletteGUI);
+			 * RouletteAPI.removeTokenBal(p.getName(),
+			 * Main.betplayer.get(p.getUniqueId()));
+			 * Main.rollers.put(p.getUniqueId(), "5");
+			 * p.playSound(p.getLocation(),
+			 * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+			 * addbetsound : "NOTE_BASS"), 1, 1); }
+			 */
+			Main.rollers.put(p.getUniqueId(), Integer.toString(Main.color.get(p.getUniqueId())));
+			p.openInventory(RouletteGUI.rouletteGUI);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? addbetsound : "NOTE_BASS"), 1, 1);
+			RouletteAPI.removeTokenBal(p.getName(), Main.betplayer.get(p.getUniqueId()));
 		    } else {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				"&8&l[&4&lRoulette&8&l] &4Minimum bet is 1 to join!"));
+				"&8[&4&lRoulette&8] &cMinimum bet is 1 to join!"));
 		    }
 		} else {
 		    p.closeInventory();
 		    p.sendMessage(ChatColor.translateAlternateColorCodes('&',
-			    "&8&l[&4&lRoulette&8&l] &4&lGame has already started. Try again soon."));
+			    "&8[&4&lRoulette&8] &cGame has already started. Try again soon."));
 		}
 
+	    }
+
+	    if (clicked.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', "&c&lRED"))) {
+		Main.instance.betting.put(p.getUniqueId(), 14);
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			"&8[&4&lRoulette&8] &aType in chat how much you want to bet on &c&lRED&a.\nType &6&lcancel &ato cancel."));
+		p.closeInventory();
+
+	    }
+
+	    if (clicked.getItemMeta().getDisplayName()
+		    .equals(ChatColor.translateAlternateColorCodes('&', "&a&lGREEN"))) {
+		Main.instance.betting.put(p.getUniqueId(), 5);
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			"&8[&4&lRoulette&8] &aType in chat how much you want to bet on &a&lGREEN&a.\nType &6&lcancel &ato cancel."));
+		p.closeInventory();
+
+	    }
+
+	    if (clicked.getItemMeta().getDisplayName()
+		    .equals(ChatColor.translateAlternateColorCodes('&', "&8&lBLACK"))) {
+		Main.instance.betting.put(p.getUniqueId(), 15);
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			"&8[&4&lRoulette&8] &aType in chat how much you want to bet on &8&lBLACK&a.\nType &6&lcancel &ato cancel."));
+		p.closeInventory();
 	    }
 
 	    if (clicked.getItemMeta().getDisplayName()
 		    .equals(ChatColor.translateAlternateColorCodes('&', "&c&lReset bet"))) {
-		Main.betplayer.put(p.getUniqueId(), 0);
-		p.updateInventory();
-		p.closeInventory();
-		Bukkit.getServer().dispatchCommand(p, "roulette");
-		p.playSound(p.getLocation(), Sound.valueOf(resetbetsound), 1, 1);
-	    }
-	    if (clicked.getItemMeta().getDisplayName()
-		    .equals(ChatColor.translateAlternateColorCodes('&', "&6&l⛂ &a&l1"))) {
-		Main.betplayer.put(p.getUniqueId(), Main.betplayer.get(p.getUniqueId()) + 1);
-		if (RouletteAPI.getTokenBal(p.getName()) < Main.betplayer.get(p.getUniqueId())) {
-		    Main.betplayer.put(p.getUniqueId(), RouletteAPI.getTokenBal(p.getName()));
-		}
-		p.updateInventory();
-		p.closeInventory();
-		Bukkit.getServer().dispatchCommand(p, "roulette");
-		p.playSound(p.getLocation(), Sound.valueOf(addbetbalsound), 1, 1);
-	    }
-	    if (clicked.getItemMeta().getDisplayName()
-		    .equals(ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l5"))) {
-		Main.betplayer.put(p.getUniqueId(), Main.betplayer.get(p.getUniqueId()) + 5);
-		if (RouletteAPI.getTokenBal(p.getName()) < Main.betplayer.get(p.getUniqueId())) {
-		    Main.betplayer.put(p.getUniqueId(), RouletteAPI.getTokenBal(p.getName()));
-		}
-		p.updateInventory();
-		p.closeInventory();
-		Bukkit.getServer().dispatchCommand(p, "roulette");
-		p.playSound(p.getLocation(), Sound.valueOf(addbetbalsound), 1, 1);
-	    }
-	    if (clicked.getItemMeta().getDisplayName()
-		    .equals(ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l10"))) {
-		Main.betplayer.put(p.getUniqueId(), Main.betplayer.get(p.getUniqueId()) + 10);
-		if (RouletteAPI.getTokenBal(p.getName()) < Main.betplayer.get(p.getUniqueId())) {
-		    Main.betplayer.put(p.getUniqueId(), RouletteAPI.getTokenBal(p.getName()));
-		}
-		p.updateInventory();
-		p.closeInventory();
-		Bukkit.getServer().dispatchCommand(p, "roulette");
-		p.playSound(p.getLocation(), Sound.valueOf(addbetbalsound), 1, 1);
-	    }
-	    if (clicked.getItemMeta().getDisplayName()
-		    .equals(ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l20"))) {
-		Main.betplayer.put(p.getUniqueId(), Main.betplayer.get(p.getUniqueId()) + 20);
-		if (RouletteAPI.getTokenBal(p.getName()) < Main.betplayer.get(p.getUniqueId())) {
-		    Main.betplayer.put(p.getUniqueId(), RouletteAPI.getTokenBal(p.getName()));
-		}
-		p.updateInventory();
-		p.closeInventory();
-		Bukkit.getServer().dispatchCommand(p, "roulette");
-		p.playSound(p.getLocation(), Sound.valueOf(addbetbalsound), 1, 1);
+		Main.betplayer.remove(p.getUniqueId());
+		Main.color.remove(p.getUniqueId());
 
+		ItemStack redbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
+			ChatColor.translateAlternateColorCodes('&', "&c&lRED"), new String[] {});
+
+		ItemStack greenbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+			ChatColor.translateAlternateColorCodes('&', "&a&lGREEN"), new String[] {});
+
+		ItemStack blackbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
+			ChatColor.translateAlternateColorCodes('&', "&8&lBLACK"), new String[] {});
+
+		inventory.setItem(28, redbet);
+		inventory.setItem(29, greenbet);
+		inventory.setItem(30, blackbet);
+		
+		inventory.setItem(8, white);
+		inventory.setItem(33, white);
+		inventory.setItem(34, white);
+		
+		p.playSound(p.getLocation(),
+			Sound.valueOf(Bukkit.getVersion().contains("1.11") ? resetbetsound : "FIZZ"), 1, 1);
 	    }
+
+	    /*
+	     * if (clicked.getItemMeta().getDisplayName()
+	     * .equals(ChatColor.translateAlternateColorCodes('&',
+	     * "&c&lReset bet"))) { Main.betplayer.put(p.getUniqueId(), 0);
+	     * p.updateInventory(); p.closeInventory();
+	     * Bukkit.getServer().dispatchCommand(p, "roulette");
+	     * p.playSound(p.getLocation(),
+	     * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+	     * resetbetsound : "FIZZ"), 1, 1); } if
+	     * (clicked.getItemMeta().getDisplayName()
+	     * .equals(ChatColor.translateAlternateColorCodes('&',
+	     * "&6&l⛂ &a&l1"))) { Main.betplayer.put(p.getUniqueId(),
+	     * Main.betplayer.get(p.getUniqueId()) + 1); if
+	     * (RouletteAPI.getTokenBal(p.getName()) <
+	     * Main.betplayer.get(p.getUniqueId())) {
+	     * Main.betplayer.put(p.getUniqueId(),
+	     * RouletteAPI.getTokenBal(p.getName())); } p.updateInventory();
+	     * p.closeInventory(); Bukkit.getServer().dispatchCommand(p,
+	     * "roulette"); p.playSound(p.getLocation(),
+	     * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+	     * addbetbalspund : "NOTE_BASS"), 1, 1); } if
+	     * (clicked.getItemMeta().getDisplayName()
+	     * .equals(ChatColor.translateAlternateColorCodes('&',
+	     * "&6&l⛃ &a&l5"))) { Main.betplayer.put(p.getUniqueId(),
+	     * Main.betplayer.get(p.getUniqueId()) + 5); if
+	     * (RouletteAPI.getTokenBal(p.getName()) <
+	     * Main.betplayer.get(p.getUniqueId())) {
+	     * Main.betplayer.put(p.getUniqueId(),
+	     * RouletteAPI.getTokenBal(p.getName())); } p.updateInventory();
+	     * p.closeInventory(); Bukkit.getServer().dispatchCommand(p,
+	     * "roulette"); p.playSound(p.getLocation(),
+	     * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+	     * addbetbalspund : "NOTE_PLING"), 1, 1); } if
+	     * (clicked.getItemMeta().getDisplayName()
+	     * .equals(ChatColor.translateAlternateColorCodes('&',
+	     * "&6&l⛃ &a&l10"))) { Main.betplayer.put(p.getUniqueId(),
+	     * Main.betplayer.get(p.getUniqueId()) + 10); if
+	     * (RouletteAPI.getTokenBal(p.getName()) <
+	     * Main.betplayer.get(p.getUniqueId())) {
+	     * Main.betplayer.put(p.getUniqueId(),
+	     * RouletteAPI.getTokenBal(p.getName())); } p.updateInventory();
+	     * p.closeInventory(); Bukkit.getServer().dispatchCommand(p,
+	     * "roulette"); p.playSound(p.getLocation(),
+	     * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+	     * addbetbalspund : "NOTE_PLING"), 1, 1); } if
+	     * (clicked.getItemMeta().getDisplayName()
+	     * .equals(ChatColor.translateAlternateColorCodes('&',
+	     * "&6&l⛃ &a&l20"))) { Main.betplayer.put(p.getUniqueId(),
+	     * Main.betplayer.get(p.getUniqueId()) + 20); if
+	     * (RouletteAPI.getTokenBal(p.getName()) <
+	     * Main.betplayer.get(p.getUniqueId())) {
+	     * Main.betplayer.put(p.getUniqueId(),
+	     * RouletteAPI.getTokenBal(p.getName())); } p.updateInventory();
+	     * p.closeInventory(); Bukkit.getServer().dispatchCommand(p,
+	     * "roulette"); p.playSound(p.getLocation(),
+	     * Sound.valueOf(Bukkit.getVersion().contains("1.11") ?
+	     * addbetbalspund : "NOTE_PLING"), 1, 1);
+	     * 
+	     * }
+	     */
 	}
     }
 }

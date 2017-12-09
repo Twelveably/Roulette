@@ -1,7 +1,6 @@
 package io.github.bagas123.roulette.commands;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,11 +18,6 @@ import io.github.bagas123.roulette.Main;
 import io.github.bagas123.roulette.RouletteGUI;
 import io.github.bagas123.roulette.api.RouletteAPI;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class RouletteCommand implements CommandExecutor {
 
@@ -68,24 +62,6 @@ public class RouletteCommand implements CommandExecutor {
     ItemStack black4 = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
 	    ChatColor.translateAlternateColorCodes('&', "&8&l4"), new String[] {});
 
-    static ItemStack orange1 = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛂ &a&l1"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛂ &a&l1 to your bet."), });
-
-    static ItemStack orange10 = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l5"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛃ &a&l5 to your bet."), });
-
-    static ItemStack orange50 = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l10"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛃ &a&l10 to your bet."), });
-
-    static ItemStack orange100 = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 1),
-	    ChatColor.translateAlternateColorCodes('&', "&6&l⛃ &a&l20"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lAdd &6&l⛃ &a&l20 to your bet."),
-
-	    });
-
     ItemStack hopper = Main.createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"), new String[] { "",
 		    ChatColor.translateAlternateColorCodes('&', "&c&lNot enough players to start roulette!") });
@@ -111,77 +87,82 @@ public class RouletteCommand implements CommandExecutor {
 		if (!Main.onspin && !Main.rollers.containsKey(player.getUniqueId())) {
 		    Inventory custom = Bukkit.createInventory(null, 45, ChatColor.BOLD + "Roulette - " + name);
 		    Double bal = Main.economy.getBalance(player);
-		    if (Main.betplayer.get(player.getUniqueId()) > 0) {
-			ItemStack bet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
-				ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
-				new String[] { "",
-					ChatColor.translateAlternateColorCodes('&',
-						"&f&lTotal bet: &6&l⛃ &f&l" + Main.formatter
-							.format(Math.max(0, Main.betplayer.get(player.getUniqueId())))),
-					ChatColor.translateAlternateColorCodes('&',
-						"&f&lYour balance: &6&l⛃ &f&l" + Main.formatter
-							.format(RouletteAPI.getTokenBal(player.getName()))),
-					"",
-					ChatColor.translateAlternateColorCodes('&', "&7&lRight click &8&l| &c&lRED"),
-					ChatColor.translateAlternateColorCodes('&', "&7&lMiddle click &8&l| &a&lGREEN"),
-					ChatColor.translateAlternateColorCodes('&',
-						"&7&lLeft click &8&l| &8&lBLACK") });
+		    ItemStack redbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
+			    ChatColor.translateAlternateColorCodes('&', "&c&lRED"), new String[] {});
 
-			ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
-				ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
-				new String[] { "",
-					ChatColor.translateAlternateColorCodes(
-						'&',
-						"&f&lTotal bet: &6&l⛃ &f&l" + Main.formatter
-							.format(Math.max(0, Main.betplayer.get(player.getUniqueId())))),
-					ChatColor.translateAlternateColorCodes('&', "&f&lYour balance: &6&l⛃ &f&l"
-						+ Main.formatter.format(RouletteAPI.getTokenBal(player.getName()))),
+		    ItemStack greenbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+			    ChatColor.translateAlternateColorCodes('&', "&a&lGREEN"), new String[] {});
 
-				});
+		    ItemStack blackbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
+			    ChatColor.translateAlternateColorCodes('&', "&8&lBLACK"), new String[] {});
 
-			EnchantGlow.addGlow(book);
-			EnchantGlow.addGlow(bet);
-			custom.setItem(8, book);
+		    if (Main.instance.color.containsKey(player.getUniqueId())) {
+			custom.setItem(33, redclear);
+			if (Main.instance.color.get(player.getUniqueId()) == 14) {
+			    ItemStack bet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+				    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
+				    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&8&lINFO"),
+					    ChatColor.translateAlternateColorCodes('&', "&7Betting on &c&lRED."),
+					    ChatColor.translateAlternateColorCodes('&',
+						    "&7Bet : &6&l⛃ " + Main.betplayer.get(player.getUniqueId())) });
 
-			custom.setItem(34, bet);
-		    }
+			    ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
+				    ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
+				    new String[] { "",
+					    ChatColor.translateAlternateColorCodes('&', "&7Betting on &c&lRED."),
+					    ChatColor.translateAlternateColorCodes('&',
+						    "&7Bet : &6&l⛃ " + Main.betplayer.get(player.getUniqueId())) });
 
-		    if (Main.betplayer.get(player.getUniqueId()) == 0) {
-			ItemStack bet = Main
-				.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
-					ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
-					new String[] { "", ChatColor.translateAlternateColorCodes('&',
-						"&f&lTotal bet: &6&l⛃ &f&l"
-							+ Math.max(0, Main.betplayer.get(player.getUniqueId()))),
-						ChatColor.translateAlternateColorCodes(
-							'&',
-							"&f&lYour balance: &6&l⛃ &f&l" + Main.formatter
-								.format(RouletteAPI.getTokenBal(player.getName()))),
-						"",
-						ChatColor.translateAlternateColorCodes('&',
-							"&7&lRight click &8&l| &c&lRED"),
-						ChatColor.translateAlternateColorCodes('&',
-							"&7&lMiddle click &8&l| &a&lGREEN"),
-						ChatColor.translateAlternateColorCodes('&',
-							"&7&lLeft click &8&l| &8&lBLACK") });
+			    EnchantGlow.addGlow(book);
+			    EnchantGlow.addGlow(bet);
 
-			ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
-				ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
-				new String[] { "",
-					ChatColor.translateAlternateColorCodes('&',
-						"&f&lTotal bet: &6&l⛃ &f&l"
-							+ Math.max(0, Main.betplayer.get(player.getUniqueId()))),
-					ChatColor.translateAlternateColorCodes('&', "&f&lYour balance: &6&l⛃ &f&l"
-						+ Main.formatter.format(RouletteAPI.getTokenBal(player.getName()))),
+			    custom.setItem(8, book);
+			    custom.setItem(34, bet);
+			} else if (Main.instance.color.get(player.getUniqueId()) == 15) {
+			    ItemStack bet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+				    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
+				    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&8&lINFO"),
+					    ChatColor.translateAlternateColorCodes('&', "&7Betting on &8&lBLACK."),
+					    ChatColor.translateAlternateColorCodes('&',
+						    "&7Bet : &6&l⛃ " + Main.betplayer.get(player.getUniqueId())) });
 
-				});
+			    ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
+				    ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
+				    new String[] { "",
+					    ChatColor.translateAlternateColorCodes('&', "&7Betting on &8&lBLACK."),
+					    ChatColor.translateAlternateColorCodes('&',
+						    "&7Bet : &6&l⛃ " + Main.betplayer.get(player.getUniqueId())) });
 
-			EnchantGlow.addGlow(book);
-			EnchantGlow.addGlow(bet);
+			    EnchantGlow.addGlow(book);
+			    EnchantGlow.addGlow(bet);
 
-			custom.setItem(8, book);
+			    custom.setItem(8, book);
+			    custom.setItem(34, bet);
+			} else if (Main.instance.color.get(player.getUniqueId()) == 5) {
+			    ItemStack bet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+				    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
+				    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&8&lINFO"),
+					    ChatColor.translateAlternateColorCodes('&', "&7Betting on &a&lGREEN."),
+					    ChatColor.translateAlternateColorCodes('&',
+						    "&7Bet : &6&l⛃ " + Main.betplayer.get(player.getUniqueId())) });
 
-			custom.setItem(34, bet);
+			    ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
+				    ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
+				    new String[] { "",
+					    ChatColor.translateAlternateColorCodes('&', "&7Betting on &a&lGREEN."),
+					    ChatColor.translateAlternateColorCodes('&',
+						    "&7Bet : &6&l⛃ " + Main.betplayer.get(player.getUniqueId())) });
+
+			    EnchantGlow.addGlow(book);
+			    EnchantGlow.addGlow(bet);
+
+			    custom.setItem(8, book);
+			    custom.setItem(34, bet);
+			}
+		    } else {
+			custom.setItem(28, redbet);
+			custom.setItem(29, greenbet);
+			custom.setItem(30, blackbet);
 		    }
 
 		    int num = Main.betplayer.get(player.getUniqueId());
@@ -196,11 +177,6 @@ public class RouletteCommand implements CommandExecutor {
 		    custom.setItem(15, black15);
 		    custom.setItem(16, red19);
 		    custom.setItem(17, black4);
-		    custom.setItem(28, orange1);
-		    custom.setItem(29, orange10);
-		    custom.setItem(30, orange50);
-		    custom.setItem(31, orange100);
-		    custom.setItem(33, redclear);
 
 		    while (custom.firstEmpty() != -1) {
 			custom.setItem(custom.firstEmpty(), white);
@@ -211,9 +187,18 @@ public class RouletteCommand implements CommandExecutor {
 		    player.openInventory(RouletteGUI.rouletteGUI);
 		}
 
+		Inventory custom = Bukkit.createInventory(null, 45, ChatColor.BOLD + "Roulette - " + name);
+
 		if (Main.rollers.containsKey(player.getUniqueId())) {
 		    player.openInventory(RouletteGUI.rouletteGUI);
 		}
+
+		if (Main.instance.betting.containsKey(player.getUniqueId())) {
+		    player.closeInventory();
+		    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+			    "&8[&4&lRoulette&8] &cYou have to finish your current action first. Type &6&lcancel &ato cancel."));
+		}
+
 	    } else if (args[0].equals("top")) {
 		if (sender.hasPermission("roulette.top")) {
 		    for (String playerName : cfg.getConfigurationSection("players").getKeys(false)) {
@@ -251,39 +236,39 @@ public class RouletteCommand implements CommandExecutor {
 			    if ((Main.instance.getConfig().getInt("token-price")
 				    * Integer.parseInt(args[1]) < Main.economy.getBalance(player) + 1)) {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					"&8&l[&4&lRoulette&8&l] &aYou have bought &6&l⛃ &6&l" + args[1]
-						+ " &achips for &6$" + Main.instance.getConfig().getInt("token-price")
+					"&8[&4&lRoulette&8] &aYou have bought &6&l⛃ &6&l" + args[1] + " &achips for &6$"
+						+ Main.instance.getConfig().getInt("token-price")
 							* Integer.parseInt(args[1])));
 				RouletteAPI.addTokenBal(sender.getName(), Integer.parseInt(args[1]));
 				Main.economy.withdrawPlayer(player,
 					Main.instance.getConfig().getInt("token-price") * Integer.parseInt(args[1]));
 			    } else {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					"&8&l[&4&lRoulette&8&l] &cYou don't have enough money!"));
+					"&8[&4&lRoulette&8] &cYou don't have enough money!"));
 			    }
 			} else {
+			    player.sendMessage(
+				    ChatColor.translateAlternateColorCodes('&', "&8[&4&lRoulette&8] &aWrong usage!"));
 			    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				    "&8&l[&4&lRoulette&8&l] &aWrong usage!"));
-			    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				    "&8&l[&4&lRoulette&8&l] &3/roulette buy <amount>"));
+				    "&8[&4&lRoulette&8] &3/roulette buy <amount>"));
 			}
 		    } else {
 			player.sendMessage(
-				ChatColor.translateAlternateColorCodes('&', "&8&l[&4&lRoulette&8&l] &cWrong usage!"));
+				ChatColor.translateAlternateColorCodes('&', "&8[&4&lRoulette&8] &cWrong usage!"));
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				"&8&l[&4&lRoulette&8&l] &3/roulette buy <amount>"));
+				"&8[&4&lRoulette&8] &3/roulette buy <amount>"));
 		    }
 		}
 	    } else if (args[0].equals("reload")) {
 		if (sender.hasPermission("roulette.reload")) {
 		    Main.instance.reloadConfig();
 		    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-			    "&8&l[&4&lRoulette&8&l] &a&lConfig successfully reloaded."));
+			    "&8[&4&lRoulette&8] &a&lConfig successfully reloaded."));
 		}
 	    } else if (args[0].equals("bal")) {
 		if (sender.hasPermission("roulette.bal")) {
 		    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-			    "&8&l[&4&lRoulette&8&l] &aYour chip balance is &6&l⛃ &6&l"
+			    "&8[&4&lRoulette&8] &aYour chip balance is &6&l⛃ &6&l"
 				    + RouletteAPI.getTokenBal(sender.getName()) + "&a."));
 		}
 	    }
@@ -294,27 +279,27 @@ public class RouletteCommand implements CommandExecutor {
 			if (RouletteAPI.isNumeric(args[1])) {
 			    if (Integer.parseInt(args[1]) < (RouletteAPI.getTokenBal(player.getName()) + 1)) {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					"&8&l[&4&lRoulette&8&l] &aYou have sold &6&l⛃ &6&l" + args[1]
-						+ " &achips for &6$" + Main.instance.getConfig().getInt("token-price")
+					"&8[&4&lRoulette&8] &aYou have sold &6&l⛃ &6&l" + args[1] + " &achips for &6$"
+						+ Main.instance.getConfig().getInt("token-price")
 							* Integer.parseInt(args[1])));
 				Main.economy.depositPlayer(player,
 					Main.instance.getConfig().getInt("token-price") * Integer.parseInt(args[1]));
 				RouletteAPI.removeTokenBal(sender.getName(), Integer.parseInt(args[1]));
 			    } else {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-					"&8&l[&4&lRoulette&8&l] &cYou don't have enough chips!"));
+					"&8[&4&lRoulette&8] &cYou don't have enough chips!"));
 			    }
 			} else {
+			    player.sendMessage(
+				    ChatColor.translateAlternateColorCodes('&', "&8[&4&lRoulette&8] &aWrong usage!"));
 			    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				    "&8&l[&4&lRoulette&8&l] &aWrong usage!"));
-			    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				    "&8&l[&4&lRoulette&8&l] &3/roulette sell <amount>"));
+				    "&8[&4&lRoulette&8] &3/roulette sell <amount>"));
 			}
 		    } else {
 			player.sendMessage(
-				ChatColor.translateAlternateColorCodes('&', "&8&l[&4&lRoulette&8&l] &cWrong usage!"));
+				ChatColor.translateAlternateColorCodes('&', "&8[&4&lRoulette&8] &cWrong usage!"));
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				"&8&l[&4&lRoulette&8&l] &3/roulette sell <amount>"));
+				"&8[&4&lRoulette&8] &3/roulette sell <amount>"));
 		    }
 		}
 	    } else if (args[0].equalsIgnoreCase("help")) {

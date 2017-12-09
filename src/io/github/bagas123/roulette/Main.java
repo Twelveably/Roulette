@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,7 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import io.github.bagas123.roulette.api.RouletteAPI;
 import io.github.bagas123.roulette.commands.RouletteCommand;
-import net.md_5.bungee.api.ChatColor;
+import io.github.bagas123.roulette.listener.PlayerTalkEvent;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -37,6 +38,11 @@ public class Main extends JavaPlugin {
     public static HashMap<UUID, String> rolplayers = new HashMap<UUID, String>();
     public static HashMap<UUID, String> rollers = new HashMap<UUID, String>();
     public static HashMap<UUID, Integer> betplayer = new HashMap<UUID, Integer>();
+    
+    public static HashMap<UUID, Integer> color = new HashMap<UUID, Integer>();
+
+    public static HashMap<UUID, Integer> betting = new HashMap<UUID, Integer>();
+
     public static Main instance;
     public static Permission permission = null;
     public static Economy economy = null;
@@ -83,6 +89,7 @@ public class Main extends JavaPlugin {
 	setupPermissions();
 	setupChat();
 	Bukkit.getServer().getPluginManager().registerEvents(new RouletteGUI(), this);
+	Bukkit.getServer().getPluginManager().registerEvents(new PlayerTalkEvent(), this);
 	createDatabase();
 
 	this.getCommand("roulette").setExecutor(new RouletteCommand());
@@ -322,7 +329,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lYou won the roulette!"));
-			p.playSound(p.getLocation(), Sound.valueOf(winsound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? winsound : "LEVEL_UP"), 1, 1);
 			Player priz = Bukkit.getPlayer(winners);
 			Integer prize = betplayer.get(winners);
 			RouletteAPI.addTokenBal(p.getName(), prize * 2);
@@ -358,7 +366,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
-			p.playSound(p.getLocation(), Sound.valueOf(losesound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
@@ -368,7 +377,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
-			p.playSound(p.getLocation(), Sound.valueOf(losesound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
@@ -389,7 +399,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lYou won the roulette!"));
-			p.playSound(p.getLocation(), Sound.valueOf(winsound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? winsound : "LEVEL_UP"), 1, 1);
 			Player priz = Bukkit.getPlayer(winners);
 			Integer prize = betplayer.get(winners);
 			RouletteAPI.addTokenBal(p.getName(), prize * 2);
@@ -424,7 +435,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
-			p.playSound(p.getLocation(), Sound.valueOf(losesound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
@@ -434,7 +446,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
-			p.playSound(p.getLocation(), Sound.valueOf(losesound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
@@ -455,7 +468,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lYou won the roulette!"));
-			p.playSound(p.getLocation(), Sound.valueOf(winsound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? winsound : "LEVEL_UP"), 1, 1);
 			Player priz = Bukkit.getPlayer(winners);
 			Integer prize = betplayer.get(winners);
 			RouletteAPI.addTokenBal(p.getName(), prize * 4);
@@ -490,7 +504,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
-			p.playSound(p.getLocation(), Sound.valueOf(losesound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
@@ -500,7 +515,8 @@ public class Main extends JavaPlugin {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
-			p.playSound(p.getLocation(), Sound.valueOf(losesound), 1, 1);
+			p.playSound(p.getLocation(),
+				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
