@@ -26,6 +26,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import io.github.bagas123.roulette.api.HiddenStringUtils;
 import io.github.bagas123.roulette.api.RouletteAPI;
 import io.github.bagas123.roulette.commands.RouletteCommand;
 import io.github.bagas123.roulette.listener.PlayerTalkEvent;
@@ -38,7 +39,7 @@ public class Main extends JavaPlugin {
     public static HashMap<UUID, String> rolplayers = new HashMap<UUID, String>();
     public static HashMap<UUID, String> rollers = new HashMap<UUID, String>();
     public static HashMap<UUID, Integer> betplayer = new HashMap<UUID, Integer>();
-    
+
     public static HashMap<UUID, Integer> color = new HashMap<UUID, Integer>();
 
     public static HashMap<UUID, Integer> betting = new HashMap<UUID, Integer>();
@@ -77,6 +78,13 @@ public class Main extends JavaPlugin {
     String resetbetsound = this.getConfig().getString("resetbet-sound");
     String lostmessage = this.getConfig().getString("lost-message");
 
+    static ItemStack barrier = createItem(new ItemStack(Material.BARRIER),
+	    ChatColor.translateAlternateColorCodes('&', "&aGame has already started. Please wait!"), new String[] {});
+
+    static ItemStack hopperstarted = createItem(new ItemStack(Material.HOPPER),
+	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"), new String[] { "",
+		    ChatColor.translateAlternateColorCodes('&', "&c&lGame has already started. Please wait!") });
+
     @Override
     public void onEnable() {
 
@@ -113,6 +121,110 @@ public class Main extends JavaPlugin {
 			betplayer.put(player.getUniqueId(), 0);
 		    }
 
+		    if (player.getOpenInventory().getTitle()
+			    .equals(ChatColor.BOLD + "Roulette " + HiddenStringUtils.encodeString(player.getName()))) {
+			ItemStack count = Main.createItem(new ItemStack(Material.PAPER),
+				ChatColor.translateAlternateColorCodes('&', "&f&6&lPlayers"),
+				new String[] { "", ChatColor.translateAlternateColorCodes('&',
+					"&a&l" + rollers.size() + "/" + minplayers) });
+			player.getOpenInventory().setItem(0, count);
+
+			if (onspin == true) {
+			    if (Main.instance.color.containsKey(player.getUniqueId())) {
+				player.getOpenInventory().setItem(34, barrier);
+				player.getOpenInventory().setItem(4, hopperstarted);
+			    }
+			} else {
+			    if (Main.instance.color.containsKey(player.getUniqueId())) {
+				player.getOpenInventory().setItem(4, hopperstart);
+				if (Main.instance.color.get(player.getUniqueId()) == 14) {
+				    ItemStack bet = Main.createItem(
+					    new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+					    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&f&m------&8&lINFO&f&m------"),
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&7Betting on &c&lRED."),
+						    ChatColor.translateAlternateColorCodes('&', "&7Bet : &6&l⛃ "
+							    + Main.betplayer.get(player.getUniqueId())) });
+
+				    ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
+					    ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&7Betting on &c&lRED."),
+						    ChatColor.translateAlternateColorCodes('&', "&7Bet : &6&l⛃ "
+							    + Main.betplayer.get(player.getUniqueId())) });
+
+				    EnchantGlow.addGlow(book);
+				    EnchantGlow.addGlow(bet);
+
+				    player.getOpenInventory().setItem(8, book);
+				    player.getOpenInventory().setItem(34, bet);
+				} else if (Main.instance.color.get(player.getUniqueId()) == 15) {
+				    ItemStack bet = Main.createItem(
+					    new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+					    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&f&m------&8&lINFO&f&m------"),
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&7Betting on &8&lBLACK."),
+						    ChatColor.translateAlternateColorCodes('&', "&7Bet : &6&l⛃ "
+							    + Main.betplayer.get(player.getUniqueId())) });
+
+				    ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
+					    ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&7Betting on &8&lBLACK."),
+						    ChatColor.translateAlternateColorCodes('&', "&7Bet : &6&l⛃ "
+							    + Main.betplayer.get(player.getUniqueId())) });
+
+				    EnchantGlow.addGlow(book);
+				    EnchantGlow.addGlow(bet);
+
+				    player.getOpenInventory().setItem(8, book);
+				    player.getOpenInventory().setItem(34, bet);
+				} else if (Main.instance.color.get(player.getUniqueId()) == 5) {
+				    ItemStack bet = Main.createItem(
+					    new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+					    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&f&m------&8&lINFO&f&m------"),
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&7Betting on &a&lGREEN."),
+						    ChatColor.translateAlternateColorCodes('&', "&7Bet : &6&l⛃ "
+							    + Main.betplayer.get(player.getUniqueId())) });
+
+				    ItemStack book = Main.createItem(new ItemStack(Material.BOOK),
+					    ChatColor.translateAlternateColorCodes('&', "&6&lInfo"),
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&',
+							    "&7Betting on &a&lGREEN."),
+						    ChatColor.translateAlternateColorCodes('&', "&7Bet : &6&l⛃ "
+							    + Main.betplayer.get(player.getUniqueId())) });
+
+				    EnchantGlow.addGlow(book);
+				    EnchantGlow.addGlow(bet);
+
+				    player.getOpenInventory().setItem(8, book);
+				    player.getOpenInventory().setItem(34, bet);
+				}
+			    }
+			}
+		    }
+
+		    if (player.getOpenInventory().getTitle().equals(ChatColor.BOLD + "Roulette")) {
+			ItemStack count = Main.createItem(new ItemStack(Material.PAPER),
+				ChatColor.translateAlternateColorCodes('&', "&f&6&lPlayers"),
+				new String[] { "", ChatColor.translateAlternateColorCodes('&',
+					"&a&l" + rollers.size() + "/" + minplayers) });
+			player.getOpenInventory().setItem(0, count);
+		    }
+
 		});
 
 		if (rollers.size() < (minplayers - 1)) {
@@ -130,7 +242,6 @@ public class Main extends JavaPlugin {
 		if (rollers.size() > (minplayers - 1) && started == false) {
 		    onspin = true;
 		    Bukkit.getScheduler().scheduleSyncDelayedTask(Main.this, new Runnable() {
-			@SuppressWarnings("deprecation")
 			@Override
 			public void run() {
 			    if (done)
@@ -357,6 +468,8 @@ public class Main extends JavaPlugin {
 
 			    }
 			}
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 		    }
@@ -369,6 +482,8 @@ public class Main extends JavaPlugin {
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 
@@ -380,10 +495,10 @@ public class Main extends JavaPlugin {
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
-		    rollers.clear();
-		    betplayer.clear();
 		    rolplayers.clear();
 		    onspin = false;
 		    started = false;
@@ -427,6 +542,8 @@ public class Main extends JavaPlugin {
 
 			    }
 			}
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 		    }
@@ -438,6 +555,8 @@ public class Main extends JavaPlugin {
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 
@@ -449,10 +568,10 @@ public class Main extends JavaPlugin {
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
-		    rollers.clear();
-		    betplayer.clear();
 		    rolplayers.clear();
 		    onspin = false;
 		    started = false;
@@ -497,6 +616,8 @@ public class Main extends JavaPlugin {
 			    }
 			}
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 		    }
 		    for (UUID winners : getKeysByValue(rollers, "14")) {
@@ -507,6 +628,8 @@ public class Main extends JavaPlugin {
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 
@@ -518,10 +641,10 @@ public class Main extends JavaPlugin {
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
 			p.sendMessage("");
+			rollers.remove(p.getUniqueId());
+			betplayer.remove(p.getUniqueId());
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
-		    rollers.clear();
-		    betplayer.clear();
 		    rolplayers.clear();
 		    onspin = false;
 		    started = false;
@@ -604,7 +727,7 @@ public class Main extends JavaPlugin {
 
     ItemStack hopperstart = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lPress &6&lAdd bet &a&lto join in.") });
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lPress &6&lPush bet &a&lto join in.") });
 
     static ItemStack hoppermoving = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),

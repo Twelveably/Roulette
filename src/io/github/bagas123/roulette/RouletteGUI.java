@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import io.github.bagas123.roulette.api.HiddenStringUtils;
 import io.github.bagas123.roulette.api.RouletteAPI;
 import net.md_5.bungee.api.ChatColor;
 
@@ -95,8 +96,16 @@ public class RouletteGUI implements Listener {
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
 	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&c&lSpinning..") });
 
-    static {
+    ItemStack makebet = Main.createItem(new ItemStack(Material.HOPPER),
+	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&c&lYou have to make a bet to join.") });
 
+    ItemStack hopperstart = Main.createItem(new ItemStack(Material.HOPPER),
+	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lClick &6&lPush bet &a&lto join in.") });
+
+    static {
+	
 	rouletteGUI.setItem(4, hopper);
 	rouletteGUI.setItem(9, red12);
 	rouletteGUI.setItem(10, black35);
@@ -123,7 +132,7 @@ public class RouletteGUI implements Listener {
 	    event.setCancelled(true);
 	}
 
-	if (inventory.getName().equals(ChatColor.BOLD + "Roulette - " + p.getName())) {
+	if (inventory.getName().equals(ChatColor.BOLD + "Roulette " + HiddenStringUtils.encodeString(p.getName()))) {
 	    event.setCancelled(true);
 	    if (clicked.getItemMeta().getDisplayName()
 		    .equals(ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"))) {
@@ -156,6 +165,7 @@ public class RouletteGUI implements Listener {
 			 * addbetsound : "NOTE_BASS"), 1, 1); }
 			 */
 			Main.rollers.put(p.getUniqueId(), Integer.toString(Main.color.get(p.getUniqueId())));
+			Main.color.remove(p.getUniqueId());
 			p.openInventory(RouletteGUI.rouletteGUI);
 			p.playSound(p.getLocation(),
 				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? addbetsound : "NOTE_BASS"), 1, 1);
@@ -203,22 +213,27 @@ public class RouletteGUI implements Listener {
 		Main.color.remove(p.getUniqueId());
 
 		ItemStack redbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
-			ChatColor.translateAlternateColorCodes('&', "&c&lRED"), new String[] {});
+			ChatColor.translateAlternateColorCodes('&', "&c&lRED"), new String[] { "",
+				ChatColor.translateAlternateColorCodes('&', "&7Click to make a bet on &c&lRED") });
 
 		ItemStack greenbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
-			ChatColor.translateAlternateColorCodes('&', "&a&lGREEN"), new String[] {});
+			ChatColor.translateAlternateColorCodes('&', "&a&lGREEN"), new String[] { "",
+				ChatColor.translateAlternateColorCodes('&', "&7Click to make a bet on &a&lGREEN") });
 
 		ItemStack blackbet = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
-			ChatColor.translateAlternateColorCodes('&', "&8&lBLACK"), new String[] {});
+			ChatColor.translateAlternateColorCodes('&', "&8&lBLACK"), new String[] { "",
+				ChatColor.translateAlternateColorCodes('&', "&7Click to make a bet on &8&lBLACK") });
+
+		inventory.setItem(4, makebet);
 
 		inventory.setItem(28, redbet);
 		inventory.setItem(29, greenbet);
 		inventory.setItem(30, blackbet);
-		
+
 		inventory.setItem(8, white);
 		inventory.setItem(33, white);
 		inventory.setItem(34, white);
-		
+
 		p.playSound(p.getLocation(),
 			Sound.valueOf(Bukkit.getVersion().contains("1.11") ? resetbetsound : "FIZZ"), 1, 1);
 	    }
