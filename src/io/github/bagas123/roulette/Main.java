@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.SkullType;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -44,46 +45,50 @@ public class Main extends JavaPlugin {
 
     public static HashMap<UUID, Integer> betting = new HashMap<UUID, Integer>();
 
+    public static HashMap<String, Double> players = new HashMap<String, Double>();
+
     public static Main instance;
-    public static Permission permission = null;
+    private Permission permission = null;
     public static Economy economy = null;
-    public static Chat chat = null;
-    boolean started = false;
+    private Chat chat = null;
+    private boolean started = false;
     public static DecimalFormat formatter = new DecimalFormat("#,###");
     RouletteAPI RouletteAPI = new RouletteAPI();
-    int seconds = 10;
-    double delay = 0;
-    int ticks = 0;
-    int tickloop = 0;
-    boolean done = false;
-    public static boolean onspin = false;
-    boolean showup = false;
-    Short result = 0;
-    File file = new File(getDataFolder(), "leaderboards.yml");
-    public FileConfiguration cfg = YamlConfiguration.loadConfiguration(file);
+    private int ticks = 0;
+    private int tickloop = 0;
+    private boolean done = false;
+    static boolean onspin = false;
+    private boolean showup = false;
+    private Short result = 0;
+    private File file = new File(getDataFolder(), "leaderboards.yml");
+    private FileConfiguration cfg = YamlConfiguration.loadConfiguration(file);
 
     public File balfile = new File(getDataFolder(), "database.yml");
     public FileConfiguration bal = YamlConfiguration.loadConfiguration(balfile);
-    public static HashMap<String, Double> players = new HashMap<String, Double>();
-    Double maxWin = 0.0;
-    String maxWinPlayer = "";
 
     private File files;
     private FileConfiguration config;
 
     String winsound = this.getConfig().getString("win-sound");
     String losesound = this.getConfig().getString("lose-sound");
-    String addbetsound = this.getConfig().getString("addbetpush-sound");
-    String addbetbalspund = this.getConfig().getString("addbet-sound");
-    String resetbetsound = this.getConfig().getString("resetbet-sound");
-    String lostmessage = this.getConfig().getString("lost-message");
 
-    static ItemStack barrier = createItem(new ItemStack(Material.BARRIER),
-	    ChatColor.translateAlternateColorCodes('&', "&aGame has already started. Please wait!"), new String[] {});
+    private final ItemStack white = createItem(new ItemStack(Material.STAINED_GLASS_PANE), ChatColor.BOLD + "",
+	    new String[] {});
 
-    static ItemStack hopperstarted = createItem(new ItemStack(Material.HOPPER),
+    private final ItemStack barrier = createItem(new ItemStack(Material.BARRIER),
+	    ChatColor.translateAlternateColorCodes('&', "&cGame has already started. Please wait!"), new String[] {});
+
+    private final ItemStack hopperstarted = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"), new String[] { "",
-		    ChatColor.translateAlternateColorCodes('&', "&c&lGame has already started. Please wait!") });
+		    ChatColor.translateAlternateColorCodes('&', "&cGame has already started. Please wait!") });
+
+    private final ItemStack spectate = createItem(new ItemStack(Material.WATCH),
+	    ChatColor.translateAlternateColorCodes('&', "&f&3&lSpectate"),
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&7Spectate the game.") });
+
+    private final ItemStack back = createItem(new ItemStack(Material.DARK_OAK_DOOR_ITEM),
+	    ChatColor.translateAlternateColorCodes('&', "&f&c&lGo back"),
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&7Quit spectating.") });
 
     @Override
     public void onEnable() {
@@ -121,18 +126,27 @@ public class Main extends JavaPlugin {
 			betplayer.put(player.getUniqueId(), 0);
 		    }
 
-		    if (player.getOpenInventory().getTitle()
-			    .equals(ChatColor.BOLD + "Roulette " + HiddenStringUtils.encodeString(player.getName()))) {
-			ItemStack count = Main.createItem(new ItemStack(Material.PAPER),
+		    String encoded;
+		    if (("Roulette ".length() + HiddenStringUtils.encodeString(player.getName()).length()) > 31) {
+			String id = "Roulette " + HiddenStringUtils.encodeString(player.getName());
+			encoded = id.substring(0, 23);
+		    } else {
+			encoded = "Roulette " + HiddenStringUtils.encodeString(player.getName());
+		    }
+
+		    if (player.getOpenInventory().getTitle().equals(ChatColor.BOLD + encoded)) {
+			ItemStack count = Main.createItem(
+				new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal()),
 				ChatColor.translateAlternateColorCodes('&', "&f&6&lPlayers"),
 				new String[] { "", ChatColor.translateAlternateColorCodes('&',
-					"&a&l" + rollers.size() + "/" + minplayers) });
-			player.getOpenInventory().setItem(0, count);
+					"&a" + rollers.size() + "/" + minplayers) });
+			player.getOpenInventory().setItem(36, count);
 
 			if (onspin == true) {
 			    if (Main.instance.color.containsKey(player.getUniqueId())) {
 				player.getOpenInventory().setItem(34, barrier);
 				player.getOpenInventory().setItem(4, hopperstarted);
+				player.getOpenInventory().setItem(38, spectate);
 			    }
 			} else {
 			    if (Main.instance.color.containsKey(player.getUniqueId())) {
@@ -160,9 +174,9 @@ public class Main extends JavaPlugin {
 				    EnchantGlow.addGlow(book);
 				    EnchantGlow.addGlow(bet);
 
-				    player.getOpenInventory().setItem(8, book);
+				    player.getOpenInventory().setItem(37, book);
 				    player.getOpenInventory().setItem(34, bet);
-				} else if (Main.instance.color.get(player.getUniqueId()) == 15) {
+				} else if (Main.color.get(player.getUniqueId()) == 15) {
 				    ItemStack bet = Main.createItem(
 					    new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
 					    ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"),
@@ -185,7 +199,7 @@ public class Main extends JavaPlugin {
 				    EnchantGlow.addGlow(book);
 				    EnchantGlow.addGlow(bet);
 
-				    player.getOpenInventory().setItem(8, book);
+				    player.getOpenInventory().setItem(37, book);
 				    player.getOpenInventory().setItem(34, bet);
 				} else if (Main.instance.color.get(player.getUniqueId()) == 5) {
 				    ItemStack bet = Main.createItem(
@@ -210,7 +224,7 @@ public class Main extends JavaPlugin {
 				    EnchantGlow.addGlow(book);
 				    EnchantGlow.addGlow(bet);
 
-				    player.getOpenInventory().setItem(8, book);
+				    player.getOpenInventory().setItem(37, book);
 				    player.getOpenInventory().setItem(34, bet);
 				}
 			    }
@@ -218,17 +232,26 @@ public class Main extends JavaPlugin {
 		    }
 
 		    if (player.getOpenInventory().getTitle().equals(ChatColor.BOLD + "Roulette")) {
-			ItemStack count = Main.createItem(new ItemStack(Material.PAPER),
+			ItemStack count = Main.createItem(
+				new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal()),
 				ChatColor.translateAlternateColorCodes('&', "&f&6&lPlayers"),
 				new String[] { "", ChatColor.translateAlternateColorCodes('&',
-					"&a&l" + rollers.size() + "/" + minplayers) });
-			player.getOpenInventory().setItem(0, count);
+					"&a" + rollers.size() + "/" + minplayers) });
+			player.getOpenInventory().setItem(36, count);
 		    }
 
 		});
 
 		if (rollers.size() < (minplayers - 1)) {
 		    RouletteGUI.rouletteGUI.setItem(4, hopper);
+		}
+
+		if (onspin == false && rollers.size() > 0) {
+		    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
+			RouletteGUI.rouletteGUI.setItem(itemstacks,
+				RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex - 1)
+					% RouletteGUI.items.length]);
+		    RouletteGUI.rouletteGUI.setItem(37, white);
 		}
 
 		if (showup == true) {
@@ -248,6 +271,7 @@ public class Main extends JavaPlugin {
 				return;
 			    ticks++;
 			    if (ticks == 1) {
+				RouletteGUI.rouletteGUI.setItem(37, white);
 				EnchantGlow.addGlow(hoppermoving);
 				RouletteGUI.rouletteGUI.setItem(4, hoppermoving);
 				tickloop = 0;
@@ -255,6 +279,8 @@ public class Main extends JavaPlugin {
 			    }
 
 			    if (ticks == 4) {
+				shuffle();
+				shuffle();
 				shuffle();
 			    }
 
@@ -275,7 +301,7 @@ public class Main extends JavaPlugin {
 				tickloop = 0;
 			    }
 
-			    if (ticks > 100 && ticks < 160) {
+			    if (ticks > 100 && ticks < 140) {
 				tickloop++;
 				if (tickloop == 3) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
@@ -288,13 +314,13 @@ public class Main extends JavaPlugin {
 				}
 			    }
 
-			    if (ticks == 160) {
+			    if (ticks == 140) {
 				tickloop = 0;
 			    }
 
-			    if (ticks > 160 && ticks < 250) {
+			    if (ticks > 140 && ticks < 190) {
 				tickloop++;
-				if (tickloop == 5) {
+				if (tickloop == 6) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
 					RouletteGUI.rouletteGUI.setItem(itemstacks,
 						RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex)
@@ -309,7 +335,7 @@ public class Main extends JavaPlugin {
 				tickloop = 0;
 			    }
 
-			    if (ticks > 250 && ticks < 300) {
+			    if (ticks > 190 && ticks < 300) {
 				tickloop++;
 				if (tickloop == 8) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
@@ -328,7 +354,7 @@ public class Main extends JavaPlugin {
 
 			    if (ticks > 300 && ticks < 480) {
 				tickloop++;
-				if (tickloop == 14) {
+				if (tickloop == 12) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
 					RouletteGUI.rouletteGUI.setItem(itemstacks,
 						RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex)
@@ -345,7 +371,7 @@ public class Main extends JavaPlugin {
 
 			    if (ticks > 480 && ticks < 500) {
 				tickloop++;
-				if (tickloop == 20) {
+				if (tickloop == 15) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
 					RouletteGUI.rouletteGUI.setItem(itemstacks,
 						RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex)
@@ -360,9 +386,9 @@ public class Main extends JavaPlugin {
 				tickloop = 0;
 			    }
 
-			    if (ticks > 500 && ticks < 600) {
+			    if (ticks > 500 && ticks < 560) {
 				tickloop++;
-				if (tickloop == 25) {
+				if (tickloop == 19) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
 					RouletteGUI.rouletteGUI.setItem(itemstacks,
 						RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex)
@@ -373,13 +399,13 @@ public class Main extends JavaPlugin {
 				}
 			    }
 
-			    if (ticks == 600) {
+			    if (ticks == 560) {
 				tickloop = 0;
 			    }
 
-			    if (ticks > 600 && ticks < 650) {
+			    if (ticks > 560 && ticks < 600) {
 				tickloop++;
-				if (tickloop == 29) {
+				if (tickloop == 22) {
 				    for (int itemstacks = 9; itemstacks < 18; itemstacks++)
 					RouletteGUI.rouletteGUI.setItem(itemstacks,
 						RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex)
@@ -390,11 +416,11 @@ public class Main extends JavaPlugin {
 				}
 			    }
 
-			    if (ticks == 650) {
+			    if (ticks == 610) {
 				tickloop = 0;
 			    }
 
-			    if (ticks == 650) {
+			    if (ticks == 610) {
 				for (int itemstacks = 9; itemstacks < 18; itemstacks++)
 				    RouletteGUI.rouletteGUI.setItem(itemstacks,
 					    RouletteGUI.items[(itemstacks + RouletteGUI.itemIndex)
@@ -405,11 +431,12 @@ public class Main extends JavaPlugin {
 				done = true;
 				started = true;
 				result = RouletteGUI.rouletteGUI.getItem(13).getDurability();
+				RouletteGUI.rouletteGUI.setItem(37, back);
 				if (result == 15) {
 				    ItemStack hopperresult = createItem(new ItemStack(Material.HOPPER),
 					    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
 					    new String[] { "", ChatColor.translateAlternateColorCodes('&',
-						    "&6&lResult: &7&lBlack") });
+						    "&6Result: &7&lBLACK") });
 
 				    RouletteGUI.rouletteGUI.setItem(4, hopperresult);
 				}
@@ -417,15 +444,15 @@ public class Main extends JavaPlugin {
 				    ItemStack hopperresult = createItem(new ItemStack(Material.HOPPER),
 					    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
 					    new String[] { "", ChatColor.translateAlternateColorCodes('&',
-						    "&6&lResult: &a&lGreen") });
+						    "&6Result: &a&lGREEN") });
 
 				    RouletteGUI.rouletteGUI.setItem(4, hopperresult);
 				}
 				if (result == 14) {
 				    ItemStack hopperresult = createItem(new ItemStack(Material.HOPPER),
 					    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
-					    new String[] { "", ChatColor.translateAlternateColorCodes('&',
-						    "&6&lResult: &c&lRed") });
+					    new String[] { "",
+						    ChatColor.translateAlternateColorCodes('&', "&6Result: &c&lRED") });
 
 				    RouletteGUI.rouletteGUI.setItem(4, hopperresult);
 				}
@@ -435,18 +462,21 @@ public class Main extends JavaPlugin {
 		}
 
 		if (result == 15) {
+		    for (Player broadcast : Bukkit.getOnlinePlayers()) {
+			broadcast.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &6The roulette ball landed on &8&lBLACK&6."));
+		    }
+
 		    for (UUID winners : getKeysByValue(rollers, "15")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lYou won the roulette!"));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? winsound : "LEVEL_UP"), 1, 1);
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "LEVEL_UP" : winsound), 1, 1);
 			Player priz = Bukkit.getPlayer(winners);
 			Integer prize = betplayer.get(winners);
 			RouletteAPI.addTokenBal(p.getName(), prize * 2);
 			priz.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				"&6&l⛃ &a&l" + formatter.format(prize * 2) + " &6&lfor winning the roulette!"));
+				"&8[&4&lRoulette&8] &aYou have won at the roulette! &6&l⛃ &6&l"
+					+ formatter.format(prize * 2) + " &afor winning, congratulations!"));
 			if (!cfg.contains("players." + priz.getName() + ".winnings")) {
 			    cfg.set("players." + priz.getName() + ".winnings", prize * 2);
 			    try {
@@ -470,34 +500,26 @@ public class Main extends JavaPlugin {
 			}
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 		    }
 
 		    for (UUID winners : getKeysByValue(rollers, "14")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &cYou lost at the roulette."));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
-			p.sendMessage("");
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "ANVIL_LAND" : losesound), 1, 1);
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 
 		    for (UUID winners : getKeysByValue(rollers, "5")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &cYou lost at the roulette."));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
-			p.sendMessage("");
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "ANVIL_LAND" : losesound), 1, 1);
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 		    rolplayers.clear();
 		    onspin = false;
@@ -508,19 +530,20 @@ public class Main extends JavaPlugin {
 		}
 
 		if (result == 14) {
+		    for (Player broadcast : Bukkit.getOnlinePlayers()) {
+			broadcast.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &6The roulette ball landed on &c&lRED&6."));
+		    }
 		    for (UUID winners : getKeysByValue(rollers, "14")) {
 			Player p = Bukkit.getPlayer(winners);
-
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lYou won the roulette!"));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? winsound : "LEVEL_UP"), 1, 1);
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "LEVEL_UP" : winsound), 1, 1);
 			Player priz = Bukkit.getPlayer(winners);
 			Integer prize = betplayer.get(winners);
 			RouletteAPI.addTokenBal(p.getName(), prize * 2);
 			priz.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				"&6&l⛃ &a&l" + formatter.format(prize * 2) + " &6&lfor winning the roulette!"));
+				"&8[&4&lRoulette&8] &aYou have won at the roulette! &6&l⛃ &6&l"
+					+ formatter.format(prize * 2) + " &afor winning, congratulations!"));
 			if (!cfg.contains("players." + priz.getName() + ".winnings")) {
 			    cfg.set("players." + priz.getName() + ".winnings", prize * 2);
 			    try {
@@ -544,33 +567,25 @@ public class Main extends JavaPlugin {
 			}
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 		    }
 		    for (UUID winners : getKeysByValue(rollers, "15")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &cYou lost at the roulette."));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
-			p.sendMessage("");
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "ANVIL_LAND" : losesound), 1, 1);
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 
 		    for (UUID winners : getKeysByValue(rollers, "5")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &cYou lost at the roulette."));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
-			p.sendMessage("");
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "ANVIL_LAND" : losesound), 1, 1);
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 		    rolplayers.clear();
 		    onspin = false;
@@ -581,19 +596,22 @@ public class Main extends JavaPlugin {
 		}
 
 		if (result == 5) {
+		    for (Player broadcast : Bukkit.getOnlinePlayers()) {
+			broadcast.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &6The roulette ball landed on &a&lGREEN&6."));
+		    }
 		    for (UUID winners : getKeysByValue(rollers, "5")) {
 			Player p = Bukkit.getPlayer(winners);
 
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
-			p.sendMessage("");
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lYou won the roulette!"));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? winsound : "LEVEL_UP"), 1, 1);
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "LEVEL_UP" : winsound), 1, 1);
 			Player priz = Bukkit.getPlayer(winners);
 			Integer prize = betplayer.get(winners);
 			RouletteAPI.addTokenBal(p.getName(), prize * 4);
 			priz.sendMessage(ChatColor.translateAlternateColorCodes('&',
-				"&6&l⛃ &a&l" + formatter.format(prize * 4) + " &6&lfor winning the roulette!"));
+				"&8[&4&lRoulette&8] &aYou have won at the roulette! &6&l⛃ &6&l"
+					+ formatter.format(prize * 4) + " &afor winning, congratulations!"));
 			if (!cfg.contains("players." + priz.getName() + ".winnings")) {
 			    cfg.set("players." + priz.getName() + ".winnings", prize * 4);
 			    try {
@@ -615,35 +633,27 @@ public class Main extends JavaPlugin {
 
 			    }
 			}
-			p.sendMessage("");
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&m-----------------------------"));
 		    }
 		    for (UUID winners : getKeysByValue(rollers, "14")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &cYou lost at the roulette."));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
-			p.sendMessage("");
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "ANVIL_LAND" : losesound), 1, 1);
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 
 		    for (UUID winners : getKeysByValue(rollers, "15")) {
 			Player p = Bukkit.getPlayer(winners);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
-			p.sendMessage("");
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', lostmessage));
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&8[&4&lRoulette&8] &cYou lost at the roulette."));
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? losesound : "ANVIL_LAND"), 1, 1);
-			p.sendMessage("");
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "ANVIL_LAND" : losesound), 1, 1);
 			rollers.remove(p.getUniqueId());
 			betplayer.remove(p.getUniqueId());
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&m-----------------------------"));
 		    }
 		    rolplayers.clear();
 		    onspin = false;
@@ -723,15 +733,15 @@ public class Main extends JavaPlugin {
 
     ItemStack hopper = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"), new String[] { "",
-		    ChatColor.translateAlternateColorCodes('&', "&c&lNot enough players to start roulette!") });
+		    ChatColor.translateAlternateColorCodes('&', "&cNot enough players to start roulette!") });
 
     ItemStack hopperstart = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lPress &6&lPush bet &a&lto join in.") });
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&aPress &6&lPush bet &ato join in.") });
 
     static ItemStack hoppermoving = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&c&lSpinning..") });
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&cSpinning..") });
 
     public static int getMinBet() {
 	int minbet = instance.getConfig().getInt("min-bet");
@@ -758,4 +768,5 @@ public class Main extends JavaPlugin {
     public static boolean isNumeric(String str) {
 	return str.matches("-?\\d+(\\.\\d+)?");
     }
+
 }

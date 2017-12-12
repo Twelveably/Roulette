@@ -28,23 +28,10 @@ public class RouletteGUI implements Listener {
     String addbetsound = Main.instance.getConfig().getString("addbetpush-sound");
     String addbetbalspund = Main.instance.getConfig().getString("addbet-sound");
     String resetbetsound = Main.instance.getConfig().getString("resetbet-sound");
-    String lostmessage = Main.instance.getConfig().getString("lost-message");
 
-    public static ItemStack[] items = new ItemStack[9];
-    {
-	items[0] = red12;
-	items[1] = black35;
-	items[2] = red3;
-	items[3] = black26;
-	items[4] = green;
-	items[5] = red32;
-	items[6] = black15;
-	items[7] = red19;
-	items[8] = black4;
-    }
     public static int itemIndex = 0;
 
-    public static ItemStack createItem(ItemStack item, String name, String[] lore) {
+    private static ItemStack createItem(ItemStack item, String name, String[] lore) {
 	ItemMeta im = item.getItemMeta();
 	im.setDisplayName(name);
 	im.setLore(Arrays.asList(lore));
@@ -52,74 +39,79 @@ public class RouletteGUI implements Listener {
 	return item;
     }
 
-    static ItemStack white = createItem(new ItemStack(Material.STAINED_GLASS_PANE), ChatColor.BOLD + "",
+    private final static ItemStack white = createItem(new ItemStack(Material.STAINED_GLASS_PANE), ChatColor.BOLD + "",
 	    new String[] {});
 
-    static ItemStack black26 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
+    private final static ItemStack black26 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
 	    ChatColor.translateAlternateColorCodes('&', "&8&l26"), new String[] {});
 
-    static ItemStack red3 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
+    private final static ItemStack red3 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
 	    ChatColor.translateAlternateColorCodes('&', "&c&l3"), new String[] {});
 
-    static ItemStack black35 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
+    private final static ItemStack black35 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
 	    ChatColor.translateAlternateColorCodes('&', "&8&l35"), new String[] {});
 
-    static ItemStack red12 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
+    private final static ItemStack yellow = Main.createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 7),
+	    ChatColor.BOLD + "", new String[] {});
+
+    private final static ItemStack red12 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
 	    ChatColor.translateAlternateColorCodes('&', "&c&l12"), new String[] {});
 
-    static ItemStack green = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
+    private final static ItemStack green = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 5),
 	    ChatColor.translateAlternateColorCodes('&', "&a&l0"), new String[] {});
 
-    static ItemStack red32 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
+    private final static ItemStack red32 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
 	    ChatColor.translateAlternateColorCodes('&', "&c&l32"), new String[] {});
 
-    static ItemStack black15 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
+    private final static ItemStack black15 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
 	    ChatColor.translateAlternateColorCodes('&', "&8&l15"), new String[] {});
 
-    static ItemStack red19 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
+    private final static ItemStack red19 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 14),
 	    ChatColor.translateAlternateColorCodes('&', "&c&l19"), new String[] {});
 
-    static ItemStack black4 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
+    private final static ItemStack black4 = createItem(new ItemStack(Material.STAINED_GLASS_PANE, 1, (byte) 15),
 	    ChatColor.translateAlternateColorCodes('&', "&8&l4"), new String[] {});
 
-    static ItemStack barrier = createItem(new ItemStack(Material.BARRIER),
+    private final static ItemStack barrier = createItem(new ItemStack(Material.BARRIER),
 	    ChatColor.translateAlternateColorCodes('&', ""), new String[] {});
 
-    static ItemStack notenough = createItem(new ItemStack(Material.BARRIER),
+    private final static ItemStack notenough = createItem(new ItemStack(Material.BARRIER),
 	    ChatColor.translateAlternateColorCodes('&', "&c&lNot enough money."), new String[] {});
 
-    static ItemStack hopper = createItem(new ItemStack(Material.HOPPER),
+    private final static ItemStack hopper = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"), new String[] { "",
 		    ChatColor.translateAlternateColorCodes('&', "&c&lNot enough players to start roulette!") });
 
-    static ItemStack hoppermoving = createItem(new ItemStack(Material.HOPPER),
+    private final static ItemStack hoppermoving = createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
 	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&c&lSpinning..") });
 
-    ItemStack makebet = Main.createItem(new ItemStack(Material.HOPPER),
+    private final static ItemStack makebet = Main.createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&c&lYou have to make a bet to join.") });
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&cYou have to make a bet to join.") });
 
-    ItemStack hopperstart = Main.createItem(new ItemStack(Material.HOPPER),
+    private final static ItemStack hopperstart = Main.createItem(new ItemStack(Material.HOPPER),
 	    ChatColor.translateAlternateColorCodes('&', "&f&6&lStatus"),
-	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&a&lClick &6&lPush bet &a&lto join in.") });
+	    new String[] { "", ChatColor.translateAlternateColorCodes('&', "&aClick &6&lPush bet &ato join in.") });
 
     static {
-	
-	rouletteGUI.setItem(4, hopper);
-	rouletteGUI.setItem(9, red12);
-	rouletteGUI.setItem(10, black35);
-	rouletteGUI.setItem(11, red3);
-	rouletteGUI.setItem(12, black26);
-	rouletteGUI.setItem(13, green);
-	rouletteGUI.setItem(14, red32);
-	rouletteGUI.setItem(15, black15);
-	rouletteGUI.setItem(16, red19);
-	rouletteGUI.setItem(17, black4);
 
 	while (rouletteGUI.firstEmpty() != -1) {
 	    rouletteGUI.setItem(rouletteGUI.firstEmpty(), white);
 	}
+    }
+    
+    public static ItemStack[] items = new ItemStack[9];
+    {
+	items[0] = black35;
+	items[1] = red3;
+	items[2] = black26;
+	items[3] = green;
+	items[4] = red32;
+	items[5] = black15;
+	items[6] = red19;
+	items[7] = black4;
+	items[8] = red12;
     }
 
     @EventHandler
@@ -130,10 +122,27 @@ public class RouletteGUI implements Listener {
 
 	if (inventory.getName().equals(ChatColor.BOLD + "Roulette")) {
 	    event.setCancelled(true);
+	    if (clicked.getItemMeta().getDisplayName()
+		    .equals(ChatColor.translateAlternateColorCodes('&', "&f&c&lGo back"))) {
+		Bukkit.dispatchCommand(p, "roulette");
+	    }
 	}
 
-	if (inventory.getName().equals(ChatColor.BOLD + "Roulette " + HiddenStringUtils.encodeString(p.getName()))) {
+	String encoded;
+	if ("Roulette ".length() + HiddenStringUtils.encodeString(p.getName()).length() > 31) {
+	    String id = "Roulette " + HiddenStringUtils.encodeString(p.getName());
+	    encoded = id.substring(0, 23);
+	} else {
+	    encoded = "Roulette " + HiddenStringUtils.encodeString(p.getName());
+	}
+
+	if (inventory.getName().equals(ChatColor.BOLD + encoded)) {
 	    event.setCancelled(true);
+	    if (clicked.getItemMeta().getDisplayName()
+		    .equals(ChatColor.translateAlternateColorCodes('&', "&f&3&lSpectate"))) {
+		p.openInventory(RouletteGUI.rouletteGUI);
+	    }
+
 	    if (clicked.getItemMeta().getDisplayName()
 		    .equals(ChatColor.translateAlternateColorCodes('&', "&a&lPush bet"))) {
 		if (!Main.onspin) {
@@ -168,7 +177,7 @@ public class RouletteGUI implements Listener {
 			Main.color.remove(p.getUniqueId());
 			p.openInventory(RouletteGUI.rouletteGUI);
 			p.playSound(p.getLocation(),
-				Sound.valueOf(Bukkit.getVersion().contains("1.11") ? addbetsound : "NOTE_BASS"), 1, 1);
+				Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "NOTE_BASS" : addbetsound), 1, 1);
 			RouletteAPI.removeTokenBal(p.getName(), Main.betplayer.get(p.getUniqueId()));
 		    } else {
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&',
@@ -226,16 +235,18 @@ public class RouletteGUI implements Listener {
 
 		inventory.setItem(4, makebet);
 
-		inventory.setItem(28, redbet);
-		inventory.setItem(29, greenbet);
-		inventory.setItem(30, blackbet);
+		inventory.setItem(29, yellow);
+		inventory.setItem(30, redbet);
+		inventory.setItem(31, greenbet);
+		inventory.setItem(32, blackbet);
+		inventory.setItem(33, yellow);
 
-		inventory.setItem(8, white);
-		inventory.setItem(33, white);
+		inventory.setItem(37, white);
 		inventory.setItem(34, white);
+		inventory.setItem(38, white);
 
 		p.playSound(p.getLocation(),
-			Sound.valueOf(Bukkit.getVersion().contains("1.11") ? resetbetsound : "FIZZ"), 1, 1);
+			Sound.valueOf(Bukkit.getVersion().contains("1.8") ? "FIZZ" : resetbetsound), 1, 1);
 	    }
 
 	    /*

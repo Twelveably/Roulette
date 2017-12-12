@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import io.github.bagas123.roulette.Main;
 
 public class RouletteAPI {
+    @SuppressWarnings("deprecation")
     public void addTokenBal(String player, Integer amount) {
 	Player p = Bukkit.getPlayer(player);
 	Main.instance.bal.set("players." + p.getName() + ".betcoin.balance",
@@ -20,7 +21,8 @@ public class RouletteAPI {
 	}
     }
 
-    public void removeTokenBal(String player, Integer amount) {
+    public static void removeTokenBal(String player, Integer amount) {
+	@SuppressWarnings("deprecation")
 	Player p = Bukkit.getPlayer(player);
 	Main.instance.bal.set("players." + p.getName() + ".betcoin.balance",
 		Main.instance.bal.getInt("players." + p.getName() + ".betcoin.balance") - amount);

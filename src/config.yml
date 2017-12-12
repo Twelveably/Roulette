@@ -1,11 +1,35 @@
-#Casino token price.
+#Casino token buy price.
 token-price: 10000
+
+#Casino token sell price.
+token-sell-price: 5000
 
 #Minimum players needed to start roulette
 min-players: 3
 
-#Lost message
-lost-message: '&4&lYou lost the roulette!'
+#Toggle between vault and token.
+toggle-mode: false
+
+#Minimum bet
+min-bet
+
+
+
+#MESSAGES
+
+prefix: '&8[&4&lRoulette&8]'
+
+input-bet: '&aType in chat how much you want to bet on #1&a. \nType &6&lcancel &ato cancel.'
+
+min-bet-message: '&aMinimum bet is 1 to join!'
+
+already-started: '&cGame has already started. Try again soon.'
+
+lost-message: '&cYou lost at the roulette.
+
+
+
+
 
 
 #Add bet balance sound
